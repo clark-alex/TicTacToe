@@ -1,0 +1,46 @@
+.App {
+  text-align: center;
+}
+
+.App-header {
+  background-color: #222;
+  height: 150px;
+  padding: 20px;
+  color: white;
+}
+
+.App-title {
+  font-size: 1.5em;
+}
+
+.App-intro {
+  font-size: large;
+}
+.flexColumn{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.grid{
+  display: grid;
+  grid-template-columns: auto auto auto;
+  /* grid-template-rows: 15vh 15vh 15vh;  */
+  padding: 10px;
+  width: 50vh;
+  height: 50vh;
+
+}
+.grid_Item {
+  background-color: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(0, 0, 0, 0.8);
+  padding: 20px;
+  font-size: 30px;
+  text-align: center;
+}
+.input_placeholder{
+  height: 100%;
+  width: 100%;
+}
+
