@@ -9,8 +9,9 @@ class App extends Component {
     this.state = {
       currentGrid: [[0, 0, 0], [0, 0, 0], [0, 0, 0]],
       turn: 2,
+      gameOver: false,
       winner: `X's turn`,
-      aiChecked: true
+      aiChecked: false
     }
     this.handleUserTurn = this.handleUserTurn.bind(this)
   }
@@ -31,14 +32,13 @@ class App extends Component {
     })
 
     // console.log('available', availableMoves, 'taken', takenMoves, 'itemPos', itemPos)
-    this.setState({ currentGrid: gridCopy,winner: this.checkForWinner(this.state.currentGrid) })
-    
+    this.setState({ currentGrid: gridCopy, winner: this.checkForWinner(this.state.currentGrid) })
     if (this.state.aiChecked && this.state.turn !== 1) {
       setTimeout(() => {
         this.aiMovement(takenMoves, availableMoves)
       }, 1000);
     }
-    this.setState({turn: this.state.turn === 2 ? 1 : 2 })
+    this.setState({ turn: this.state.turn === 2 ? 1 : 2 })
   }
 
 
@@ -53,11 +53,25 @@ class App extends Component {
   changeWinnerLabel() {
     const { winner, turn } = this.state
     let winnerLabel = ''
+    this.resetBoard()    
     if (winner === -1 && turn === 1) { this.setState({ winner: `O's turn` }) }
     else if (winner === -1 && turn === 2) { this.setState({ winner: `X's turn` }) }
-    else if (winner === 2) { this.setState({ winner: `X's win!` }) }
-    else if (winner === 1) { this.setState({ winner: `O's win!` }) }
-    else if (winner === 0) { this.setState({ winner: `It's a tie!` }) }
+    else if (winner === 2) { this.setState({ winner: `X's win!`, gameOver: true }) }
+    else if (winner === 1) { this.setState({ winner: `O's win!`, gameOver: true }) }
+    else if (winner === 0) { this.setState({ winner: `It's a tie!`, gameOver: true }) }
+  }
+  resetBoard() {
+    const { winner } = this.state
+    console.log('winner', winner)
+    if (winner === 2 || winner === 1) {
+      if (winner === 2) { this.setState({ winner: `X's win!`, gameOver: true, resetting: true }) }
+      else if (winner === 1) { this.setState({ winner: `O's win!`, gameOver: true, resetting: true }) }
+      setTimeout(() => {
+        this.setState({
+          currentGrid: [[0, 0, 0], [0, 0, 0], [0, 0, 0]],
+        })
+      }, 5000);
+    }
   }
 
   horizCheck(array) {
@@ -103,32 +117,10 @@ class App extends Component {
     this.setState({ aiChecked: !this.state.aiChecked })
   }
   aiMovement(takenMoves, availableMoves) {
-
-    let random = availableMoves[Math.round(Math.random() * (availableMoves.length-1 - 0) + 0)]
-    // ==== reaction moves ====
-    // let checkForMissing = [0,1,2]
-    // let missing = -1
-    // let reactionMoves = []
-    // takenMoves.forEach(move=>{
-    //   takenMoves.forEach(move2 =>{
-    //     if (move.move[0] === move2.move[0] && move.user === move2.user && move.move[1] !== move2.move[1]){
-    //       let sortedMoves = [move.move[1],move2.move[1]].sort((a,b)=>a-b)
-    //       console.log(sortedMoves)
-    //       checkForMissing[move.move[1]] = null
-    //       checkForMissing[move2.move[1]] = null
-    //       console.log(checkForMissing)
-    //       reactionMoves.push([move.move[0],checkForMissing.filter(e=>e)[0]])
-    //       checkForMissing = [0,1,2]
-          
-    //     }
-    //   })
-    // })
-    // console.log(reactionMoves)
-    // if (reactionMoves.length !== 0)random = reactionMoves[0]
-    availableMoves.splice(availableMoves.findIndex(e=> e[0] === random[0] && e[1] === random[1] ), 1)
-    takenMoves.push({move:random, user:this.state.turn === 2 ? 1 : 2})
-    // console.log(availableMoves, takenMoves)
-    if (availableMoves.length !== 0) this.handleUserTurn(random)
+    let random = availableMoves[Math.round(Math.random() * (availableMoves.length - 1 - 0) + 0)]
+    availableMoves.splice(availableMoves.findIndex(e => e[0] === random[0] && e[1] === random[1]), 1)
+    takenMoves.push({ move: random, user: this.state.turn === 2 ? 1 : 2 })
+    if (availableMoves.length !== 0 && !this.state.gameOver) this.handleUserTurn(random)
     return [takenMoves, availableMoves]
   }
 
@@ -136,7 +128,6 @@ class App extends Component {
 
   render() {
     // console.log(this.state)
-    this.changeWinnerLabel()
     let grid = this.state.currentGrid.map((row, rowIdx) => {
 
       return row.map((item, itemIdx) => {
